@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Mental Health AI Chatbot</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+🧠 MindCare AI
+<p>Your Mental Wellness Companion</p>
+</div>
+
+<div id="chatbox" class="chatbox"></div>
+
+<div class="input-area">
+<input type="text" id="message" placeholder="Type your message..." />
+<button onclick="sendMessage()">Send</button>
+</div>
+
+</div>
+
+<script>
+
+function sendMessage(){
+
+let message = document.getElementById("message").value;
+
+if(message.trim()===""){
+return;
+}
+
+let chatbox = document.getElementById("chatbox");
+
+chatbox.innerHTML += `
+<div class="bot typing">Bot is typing...</div>
+`;
+
+setTimeout(()=>{
+document.querySelector(".typing").innerHTML =
+"Bot: " + data.reply + "<br><span style='color:"+moodColor+"'>Mood: " + data.mood + "</span>";
+},800);
+
+fetch("/chat",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({message:message})
+})
+
+.then(response => response.json())
+
+.then(data => {
+
+let moodColor="black";
+
+if(data.mood==="Happy"){
+moodColor="green";
+}
+else if(data.mood==="Sad" || data.mood==="Lonely"){
+moodColor="blue";
+}
+else if(data.mood==="Stressed" || data.mood==="Anxious"){
+moodColor="red";
+}
+
+chatbox.innerHTML += `
+<div class="bot">Bot: ${data.reply}</div>
+<div class="mood" style="color:${moodColor}">Mood: ${data.mood}</div>
+`;
+
+if(data.mood==="Stressed" || data.mood==="Anxious"){
+chatbox.innerHTML += `<button class="exercise-btn" onclick="breathingExercise()">Breathing Exercise</button>`;
+}
+
+chatbox.scrollTop = chatbox.scrollHeight;
+
+});
+
+document.getElementById("message").value="";
+
+}
+
+function breathingExercise(){
+
+alert(
+"Breathing Exercise:\n\n"+
+"1. Inhale slowly for 4 seconds\n"+
+"2. Hold breath for 4 seconds\n"+
+"3. Exhale slowly for 6 seconds\n\n"+
+"Repeat this for 1 minute."
+);
+
+}
+
+</script>
+
+<script>
+
+const cursor = document.createElement("div");
+cursor.style.width="20px";
+cursor.style.height="20px";
+cursor.style.border="2px solid white";
+cursor.style.borderRadius="50%";
+cursor.style.position="fixed";
+cursor.style.pointerEvents="none";
+cursor.style.transition="0.05s";
+cursor.style.zIndex="999";
+document.body.appendChild(cursor);
+
+document.addEventListener("mousemove",e=>{
+cursor.style.left=e.clientX+"px";
+cursor.style.top=e.clientY+"px";
+});
+
+</script>
+<script>
+
+document.getElementById("message").addEventListener("keypress", function(event){
+    if(event.key === "Enter"){
+        event.preventDefault();
+        sendMessage();
+    }
+});
+
+</script>
+</body>
+</html>
